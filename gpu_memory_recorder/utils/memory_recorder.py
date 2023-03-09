@@ -57,10 +57,16 @@ class gpu_memory_recorder(object):
         #       ' grep -Eo "[0-9]{1,5}" >> ' + os.path.join(self.log_dir, self.log_filename) + \
         #       '; sleep ' + str(self.recording_interval) + '; done;']
         # The process id is protected
-        cmd = ['bash', '-c', 'while true; do nvidia-smi -q -i ' + str(self.gpu_id) + \
-               ' | grep "Used GPU Memory" |' + \
-               ' grep -Eo "[0-9]{1,5}" >> ' + os.path.join(self.log_dir, self.log_filename) + \
-               '; sleep ' + str(self.recording_interval) + '; done;']
+        if self.process_id == 0:
+            cmd = ['bash', '-c', 'while true; do nvidia-smi -q -i ' + str(self.gpu_id) + \
+                ' | grep "Used GPU Memory" |' + \
+                ' grep -Eo "[0-9]{1,5}" >> ' + os.path.join(self.log_dir, self.log_filename) + \
+                '; sleep ' + str(self.recording_interval) + '; done;']
+        else:
+            cmd = ['bash', '-c', 'while true; do nvidia-smi -q -i ' + str(self.gpu_id) + \
+                ' | grep -A 3 "'+ str(self.process_id) +'" | grep "Memory" |' + \
+                ' grep -Eo "[0-9]{1,5}" >> ' + os.path.join(self.log_dir, self.log_filename) + \
+                '; sleep ' + str(self.recording_interval) + '; done;']
         
         print(cmd)
 
@@ -99,8 +105,8 @@ class gpu_memory_recorder(object):
         fig, ax = plt.subplots(1)
         plt.title('GPU memory usage')
 
-        plt.xlabel('Time')
-        plt.ylabel('Memory')
+        plt.xlabel('Time(s)')
+        plt.ylabel('Memory(MB)')
 
         plt.plot(x_labels, data, '-r', label='memory')
         

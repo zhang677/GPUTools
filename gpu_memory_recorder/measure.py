@@ -6,6 +6,7 @@ import argparse
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--gpuid", type=int, default=0)
+  parser.add_argument("--process", type=int, default=0)
   parser.add_argument("--interval", type=float, default=0.2)
   args = parser.parse_args()
 
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 
   # the name of the file where the data will be saved, if None, a name will
   # be generated automatically
-  mem_usage_filename = 'memory1.txt'
+  mem_usage_filename = str(args.process)+'.txt'
 
   # interval for probing the gpu (in seconds)
   interval = args.interval
@@ -28,8 +29,9 @@ if __name__ == "__main__":
   # create the mem recorder object
   mem_recorder = gpu_memory_recorder(gpu_id=gpu_id,
                                     log_dir=log_dir,
+                                    process_id=args.process,
                                     log_filename=mem_usage_filename,
-                                    recording_interval=interval)
+                                    recording_interval=interval)  
 
   # start recording
   mem_recorder.start_recording()
